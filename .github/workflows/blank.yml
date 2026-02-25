@@ -1,0 +1,33 @@
+name: Copilot Issue Assistant
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  copilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate code suggestion with Copilot
+        uses: github/copilot-actions@v1
+        with:
+          prompt: |
+            The following GitHub issue was created:
+            ---
+            ${{ github.event.issue.title }}
+            ${{ github.event.issue.body }}
+            ---
+            Please generate a code snippet or implementation suggestion that addresses this issue.
+
+      - name: Comment back on issue
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            🤖 Copilot 建議的程式碼如下：
+            ```
+            ${{ steps.copilot.outputs.result }}
+            ```
